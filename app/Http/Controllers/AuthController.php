@@ -3,17 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\JWTGuard;
 
 class AuthController extends Controller
 {
+    protected function guard(): JWTGuard
+    {
+        return auth('api');
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
 
-        if (! $token = JWTAuth::attempt($credentials)) {
+        if (! $token = $this->guard()->attempt($credentials)) {
             return response()->json(['error' => 'Identifiants invalides'], 401);
         }
 
@@ -22,12 +25,12 @@ class AuthController extends Controller
 
     public function me()
     {
-        return response()->json(JWTAuth::user());
+        return response()->json($this->guard()->user());
     }
 
     public function logout()
     {
-        JWTAuth::logout();
+        $this->guard()->logout();
         return response()->json(['message' => 'Déconnexion réussie']);
     }
 
@@ -36,8 +39,8 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => JWTAuth::factory()->getTTL() * 60,
-            'user' => JWTAuth::user()
+            'expires_in' => $this->guard()->factory()->getTTL() * 60,
+            'user' => $this->guard()->user()
         ]);
     }
 }
