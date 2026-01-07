@@ -3,33 +3,21 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\TeacherController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Ces routes sont automatiquement préfixées par "/api"
-| et chargées par RouteServiceProvider.
-|
-*/
+Route::prefix('auth')->group(function () {
+	Route::post('login', [AuthController::class, 'login']);
+});
 
-Route::middleware('api')->group(function () {
+// Routes protégées par JWT
+Route::middleware('jwt.auth')->group(function () {
+	Route::post('logout', [AuthController::class, 'logout']);
+	Route::get('me', [AuthController::class, 'me']);
+
+	Route::apiResource('teachers', TeacherController::class);
+	Route::apiResource('students', StudentController::class);
+
 	Route::get('/test', function () {
-		return response()->json(['message' => 'API is working!']);
-	});
-
-	// Routes publiques (pas besoin d'auth)
-	Route::prefix('auth')->group(function () {
-		Route::post('login', [AuthController::class, 'login']);
-	});
-
-	// Routes protégées
-	Route::middleware('auth:api')->group(function () {
-		Route::post('logout', [AuthController::class, 'logout']);
-		Route::get('me', [AuthController::class, 'me']);
-
-		Route::apiResource('students', StudentController::class);
-		// Ajoute d'autres ressources ici
+		return response()->json(['message' => 'API is working with JWT!']);
 	});
 });

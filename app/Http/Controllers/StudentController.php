@@ -8,10 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
-    public function __construct()
-    {
-        // $this->middleware('auth:api');
-    }
+    public function __construct() {}
 
     public function index()
     {
@@ -29,14 +26,25 @@ class StudentController extends Controller
     {
         $user = Auth::user();
 
+
         // Un élève ne peut voir que son propre dossier
+        if (in_array($user->role, ['director', 'teacher'])) {
+            return $student->load('user', 'schoolClass', 'fees', 'reportCards');
+        }
+
         if ($user->role === 'student') {
+            if (!$user->student) {
+                return response()->json(['error' => "Votre compte n'es pas associé a ce profile étudiant"], 403);
+            }
+
             if ($user->student->id !== $student->id) {
                 return response()->json(['error' => 'Accès refusé'], 403);
             }
+
+            return $student->load('user', 'schoolClass', 'fees', 'reportCards');
         }
 
-        return $student->load('user', 'schoolClass', 'fees', 'reportCards.subject');
+        return response()->json(['error' => 'Role non autorise'], 403);
     }
 
     public function store(Request $request)
@@ -60,12 +68,25 @@ class StudentController extends Controller
     public function update(Request $request, Student $student)
     {
         $user = Auth::user();
+
         if (! in_array($user->role, ['director'])) {
             return response()->json(['error' => 'Seul le directeur peut modifier'], 403);
         }
 
-        $student->update($request->all());
-        return response()->json($student->load('user'));
+        //  Validation explicite
+        $validated = $request->validate([
+            'matricule' => 'sometimes|required|unique:students,matricule,' . $student->id,
+            'birth_date' => 'sometimes|required|date',
+            'class_id' => 'sometimes|nullable|exists:school_classes,id',
+            'user_id' => 'sometimes|exists:users,id',
+            'phone' => 'sometimes|nullable|string|max:20'
+        ]);
+
+
+        // dd($validated);
+        $student->update($validated);
+
+        return response()->json($student->load('user', 'schoolClass'));
     }
 
     public function destroy(Student $student)

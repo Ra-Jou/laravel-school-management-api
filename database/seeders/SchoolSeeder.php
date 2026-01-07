@@ -17,9 +17,13 @@ class SchoolSeeder extends Seeder
     {
         // 1. Créer les classes
         $classes = [
-            SchoolClass::create(['name' => '6ème A', 'level' => 1]),
-            SchoolClass::create(['name' => '4ème B', 'level' => 2]),
-            SchoolClass::create(['name' => 'Terminale C', 'level' => 3]),
+            SchoolClass::create(['name' => '6ème', 'level' => 1]),
+            SchoolClass::create(['name' => '5ème', 'level' => 2]),
+            SchoolClass::create(['name' => '4ème', 'level' => 3]),
+            SchoolClass::create(['name' => '3ème', 'level' => 4]),
+            SchoolClass::create(['name' => 'Seconde', 'level' => 5]),
+            SchoolClass::create(['name' => 'Premiere', 'level' => 6]),
+            SchoolClass::create(['name' => 'Terminale C', 'level' => 7]),
         ];
 
         // 2. Créer les utilisateurs
@@ -52,7 +56,18 @@ class SchoolSeeder extends Seeder
                 ['Marie Lemoine', 'marie@student.com'],
                 ['Lucas Martin', 'lucas@student.com'],
                 ['Chloé Dubois', 'chloe@student.com'],
-                ['Tom Renard', 'tom@student.com'],
+                ['Doda Renard', 'Doda@student.com'],
+                ['Joary Renard', 'Joary@student.com'],
+                ['Faniry Renard', 'Faniry@student.com'],
+                ['Miora Renard', 'Miora@student.com'],
+                ['Tafita Renard', 'Tafita@student.com'],
+                ['Fifa Renard', 'Fifa@student.com'],
+                ['Fafa Renard', 'Fafa@student.com'],
+                ['Davoada Renard', 'Davoada@student.com'],
+                ['Tonny Renard', 'Tonny@student.com'],
+                ['Laetitia Renard', 'Laetitia@student.com'],
+                ['Sedera Renard', 'Sedera@student.com'],
+                ['bella Renard', 'bella@student.com'],
             ] as $i => $data
         ) {
             $studentsUsers[] = User::create([
