@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model
 {
-    /** @use HasFactory<\Database\Factories\SubjectFactory> */
     use HasFactory;
+
+    protected $fillable = ['name', 'code'];
+
+    // Relations (optionnelles pour l'instant)
+    public function reportCards()
+    {
+        return $this->hasMany(ReportCard::class);
+    }
 }

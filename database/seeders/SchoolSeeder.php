@@ -17,13 +17,19 @@ class SchoolSeeder extends Seeder
     {
         // 1. Créer les classes
         $classes = [
-            SchoolClass::create(['name' => '6ème', 'level' => 1]),
+            SchoolClass::create(['name' => '12ème', 'level' => 1]),
+            SchoolClass::create(['name' => '11ème', 'level' => 1]),
+            SchoolClass::create(['name' => '10ème', 'level' => 1]),
+            SchoolClass::create(['name' => '9ème', 'level' => 1]),
+            SchoolClass::create(['name' => '8ème', 'level' => 1]),
+            SchoolClass::create(['name' => '7ème', 'level' => 1]),
+            SchoolClass::create(['name' => '6ème', 'level' => 2]),
             SchoolClass::create(['name' => '5ème', 'level' => 2]),
-            SchoolClass::create(['name' => '4ème', 'level' => 3]),
-            SchoolClass::create(['name' => '3ème', 'level' => 4]),
-            SchoolClass::create(['name' => 'Seconde', 'level' => 5]),
-            SchoolClass::create(['name' => 'Premiere', 'level' => 6]),
-            SchoolClass::create(['name' => 'Terminale C', 'level' => 7]),
+            SchoolClass::create(['name' => '4ème', 'level' => 2]),
+            SchoolClass::create(['name' => '3ème', 'level' => 2]),
+            SchoolClass::create(['name' => 'Seconde', 'level' => 3]),
+            SchoolClass::create(['name' => 'Premiere', 'level' => 3]),
+            SchoolClass::create(['name' => 'Terminale C', 'level' => 3]),
         ];
 
         // 2. Créer les utilisateurs

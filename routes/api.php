@@ -4,27 +4,31 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\UserController;
 
+// Authentication routes
 Route::prefix('auth')->group(function () {
 	Route::post('login', [AuthController::class, 'login']);
 });
 
-// Routes protégées par JWT
+// Routes protected by JWT authentication
 Route::middleware('jwt.auth')->group(function () {
 	Route::post('logout', [AuthController::class, 'logout']);
-	Route::get('me', [AuthController::class, 'me']);
+	Route::get('profile', [AuthController::class, 'profile']);
 
-	// Inscription combinée (doit venir AVANT les ressources)
+	// Combined registration routes (must be declared BEFORE resource routes)
 	Route::post('students/register', [StudentController::class, 'registerStudent']);
 	Route::post('teachers/register', [TeacherController::class, 'registerTeacher']);
 
-	// Ressources CRUD
+	// CRUD API resources
 	Route::apiResource('students', StudentController::class);
 	Route::apiResource('teachers', TeacherController::class);
 	Route::apiResource('users', UserController::class);
+	Route::apiResource('subjects', SubjectController::class);
 
+	// Test endpoint
 	Route::get('/test', function () {
 		return response()->json(['message' => 'API is working with JWT!']);
 	});
