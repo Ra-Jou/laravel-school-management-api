@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class StudentController extends Controller
 {
@@ -98,5 +101,53 @@ class StudentController extends Controller
 
         $student->delete();
         return response()->json(null, 204);
+    }
+
+
+    public function registerStudent(Request $request)
+    {
+        $user = Auth::user();
+
+        // Seul le directeur peut inscrire un nouvel élève
+        if ($user->role !== 'director') {
+            return response()->json(['error' => 'Seul le directeur peut inscrire un élève'], 403);
+        }
+
+        // Validation des données
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'birth_date' => 'required|date',
+            'class_id' => 'nullable|exists:school_classes,id',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        // Générer un matricule unique (ex: STU20260001)
+        $latestStudent = Student::orderBy('id', 'desc')->first();
+        $nextId = $latestStudent ? (int) substr($latestStudent->matricule, 3) + 1 : 1;
+        $matricule = 'STU' . str_pad($nextId, 3, '0', STR_PAD_LEFT);
+
+        // Créer l'utilisateur
+        $userRecord = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => 'student',
+        ]);
+
+        // Créer le profil étudiant
+        $student = Student::create([
+            'user_id' => $userRecord->id,
+            'matricule' => $matricule,
+            'birth_date' => $validated['birth_date'],
+            'class_id' => $validated['class_id'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+        ]);
+
+        return response()->json([
+            'message' => 'Élève créé avec succès',
+            'student' => $student->load('user', 'schoolClass')
+        ], 201);
     }
 }

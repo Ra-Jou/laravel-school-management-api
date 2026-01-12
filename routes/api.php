@@ -16,7 +16,10 @@ Route::middleware('jwt.auth')->group(function () {
 	Route::get('me', [AuthController::class, 'me']);
 
 	Route::apiResource('users', UserController::class);
+	Route::post('teachers/register', [TeacherController::class, 'registerTeacher']);
 	Route::apiResource('teachers', TeacherController::class);
+
+	Route::post('students/register', [StudentController::class, 'registerStudent']);
 	Route::apiResource('students', StudentController::class);
 
 	Route::get('/test', function () {
