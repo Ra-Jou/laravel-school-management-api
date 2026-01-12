@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TeacherController;
@@ -27,6 +28,7 @@ Route::middleware('jwt.auth')->group(function () {
 	Route::apiResource('teachers', TeacherController::class);
 	Route::apiResource('users', UserController::class);
 	Route::apiResource('subjects', SubjectController::class);
+	Route::apiResource('school-classes', SchoolClassController::class);
 
 	// Test endpoint
 	Route::get('/test', function () {

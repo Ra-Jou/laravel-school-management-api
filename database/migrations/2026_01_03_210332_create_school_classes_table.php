@@ -6,22 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('school_classes', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Ex: "6ème A", "Terminale C"
-            $table->integer('level'); // 1: primaire, 2: collège, 3: lycée, 4: college (selon ton besoin)
+            $table->string('name'); // Ex: "Grande Section", "6ème A", "Terminale C"
+            $table->string('level_group'); // 'maternelle', 'primaire', 'college', 'lycee'
+            $table->integer('level_order'); // Ordre dans le groupe (1 = plus jeune)
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('school_classes');

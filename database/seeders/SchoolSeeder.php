@@ -15,24 +15,29 @@ class SchoolSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Créer les classes
+        // 1. Créer les classes avec la nouvelle structure
         $classes = [
-            SchoolClass::create(['name' => '12ème', 'level' => 1]),
-            SchoolClass::create(['name' => '11ème', 'level' => 1]),
-            SchoolClass::create(['name' => '10ème', 'level' => 1]),
-            SchoolClass::create(['name' => '9ème', 'level' => 1]),
-            SchoolClass::create(['name' => '8ème', 'level' => 1]),
-            SchoolClass::create(['name' => '7ème', 'level' => 1]),
-            SchoolClass::create(['name' => '6ème', 'level' => 2]),
-            SchoolClass::create(['name' => '5ème', 'level' => 2]),
-            SchoolClass::create(['name' => '4ème', 'level' => 2]),
-            SchoolClass::create(['name' => '3ème', 'level' => 2]),
-            SchoolClass::create(['name' => 'Seconde', 'level' => 3]),
-            SchoolClass::create(['name' => 'Premiere', 'level' => 3]),
-            SchoolClass::create(['name' => 'Terminale C', 'level' => 3]),
+            // Primaire (12ème = CP, 11ème = CE1, ..., 7ème = CM2)
+            SchoolClass::create(['name' => '12ème', 'level_group' => 'primaire', 'level_order' => 1]),
+            SchoolClass::create(['name' => '11ème', 'level_group' => 'primaire', 'level_order' => 2]),
+            SchoolClass::create(['name' => '10ème', 'level_group' => 'primaire', 'level_order' => 3]),
+            SchoolClass::create(['name' => '9ème', 'level_group' => 'primaire', 'level_order' => 4]),
+            SchoolClass::create(['name' => '8ème', 'level_group' => 'primaire', 'level_order' => 5]),
+            SchoolClass::create(['name' => '7ème', 'level_group' => 'primaire', 'level_order' => 6]),
+
+            // Collège
+            SchoolClass::create(['name' => '6ème', 'level_group' => 'college', 'level_order' => 1]),
+            SchoolClass::create(['name' => '5ème', 'level_group' => 'college', 'level_order' => 2]),
+            SchoolClass::create(['name' => '4ème', 'level_group' => 'college', 'level_order' => 3]),
+            SchoolClass::create(['name' => '3ème', 'level_group' => 'college', 'level_order' => 4]),
+
+            // Lycée
+            SchoolClass::create(['name' => 'Seconde', 'level_group' => 'lycee', 'level_order' => 1]),
+            SchoolClass::create(['name' => 'Premiere', 'level_group' => 'lycee', 'level_order' => 2]),
+            SchoolClass::create(['name' => 'Terminale C', 'level_group' => 'lycee', 'level_order' => 3]),
         ];
 
-        // 2. Créer les utilisateurs
+        // 2. Créer les utilisateurs (inchangé)
         $director = User::create([
             'name' => 'Directeur École',
             'email' => 'director@school.com',
