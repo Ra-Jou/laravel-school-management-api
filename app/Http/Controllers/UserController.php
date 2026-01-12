@@ -4,45 +4,41 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
 
 class UserController extends Controller
 {
-    public function __construct() {}
-
-    /**
-     * Display a listing of users.
-     * Acces: director, teacher
-     */
-    public function index()
+    public function __construct()
     {
-        $user = Auth::user();
-
-        if (! in_array($user->role, ['director', 'teacher'])) {
-            return response()->json(['error' => 'Accès refusé'], 403);
-        }
-
-        // Option : Hide lpassword and tokken
-        return User::select('id', 'name', 'email', 'role', 'created_at')
-            ->when($user->role === 'teacher', function ($query) {
-                return $query->where('role', '!=', 'director');
-            })
-            ->get();
+        $this->middleware('jwt.auth');
+        parent::__construct();
     }
 
     /**
-     * Create a new user 
-     * Only the Director
+     * Display a listing of users.
+     * - Director: sees all
+     * - Teacher: sees all except directors
+     */
+    public function index()
+    {
+        $this->allowOnly(['director', 'teacher']);
+
+        $query = User::select('id', 'name', 'email', 'role', 'created_at');
+
+        if ($this->currentUser->role === 'teacher') {
+            $query->where('role', '!=', 'director');
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Create a new user.
+     * Only for director.
      */
     public function store(Request $request)
     {
-        $currentUser = Auth::user();
-
-        if ($currentUser->role !== 'director') {
-            return response()->json(['error' => 'Seul le directeur peut créer un utilisateur'], 403);
-        }
+        $this->allowOnly(['director']);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -69,16 +65,12 @@ class UserController extends Controller
 
     /**
      * Display the specified user.
-     * Access: 
-     *  - all user can see his profile
-     *  - Director/teacher can see ohter profile
+     * - Users can view their own profile.
+     * - Director/teacher can view others.
      */
     public function show(User $user)
     {
-        $currentUser = Auth::user();
-
-        // Access for each other
-        if ($currentUser->id === $user->id) {
+        if ($this->currentUser->id === $user->id || in_array($this->currentUser->role, ['director', 'teacher'])) {
             return response()->json([
                 'id' => $user->id,
                 'name' => $user->name,
@@ -88,30 +80,16 @@ class UserController extends Controller
             ]);
         }
 
-        // Access for director/teacher
-        if (in_array($currentUser->role, ['director', 'teacher'])) {
-            return response()->json([
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role,
-                'created_at' => $user->created_at,
-            ]);
-        }
-
-        return response()->json(['error' => 'Accès refusé'], 403);
+        abort(403, 'Access denied');
     }
 
     /**
-     * Update user
+     * Update the specified user.
+     * Only for director.
      */
     public function update(Request $request, User $user)
     {
-        $currentUser = Auth::user();
-
-        if ($currentUser->role !== 'director') {
-            return response()->json(['error' => 'Seul le directeur peut modifier un utilisateur'], 403);
-        }
+        $this->allowOnly(['director']);
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -130,6 +108,8 @@ class UserController extends Controller
             $data['password'] = Hash::make($validated['password']);
         }
 
+        $user->update($data);
+
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
@@ -140,22 +120,19 @@ class UserController extends Controller
     }
 
     /**
-     * Remove user.
+     * Remove the specified user.
+     * Only for director.
+     * Prevent self-deletion.
      */
     public function destroy(User $user)
     {
-        $currentUser = Auth::user();
+        $this->allowOnly(['director']);
 
-        if ($currentUser->role !== 'director') {
-            return response()->json(['error' => 'Accès refusé'], 403);
-        }
-
-        if ($currentUser->id === $user->id) {
-            return response()->json(['error' => 'Vous ne pouvez pas supprimer votre propre compte'], 403);
+        if ($this->currentUser->id === $user->id) {
+            abort(403, 'Cannot delete your own account');
         }
 
         $user->delete();
-
         return response()->json(null, 204);
     }
 }
