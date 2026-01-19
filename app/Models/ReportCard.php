@@ -9,4 +9,22 @@ class ReportCard extends Model
 {
     /** @use HasFactory<\Database\Factories\ReportCardFactory> */
     use HasFactory;
+    protected $fillable = [
+        'student_id',
+        'subject_id',
+        'score',
+        'term',
+        'academic_year',
+        'comment'
+    ];
+
+    public function subject()
+    {
+        return $this->belongsTo(Subject::class);
+    }
+
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

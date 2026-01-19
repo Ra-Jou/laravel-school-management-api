@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Fee extends Model
 {
-    /** @use HasFactory<\Database\Factories\FeeFactory> */
     use HasFactory;
+
+    protected $fillable = ['student_id', 'amount', 'status', 'due_date'];
+
+    // Relation
+    public function student()
+    {
+        return $this->belongsTo(Student::class);
+    }
 }

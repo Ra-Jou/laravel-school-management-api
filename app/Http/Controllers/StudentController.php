@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ReportCard;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -137,5 +138,64 @@ class StudentController extends Controller
             'message' => 'Student registered successfully',
             'student' => $student->load('user', 'schoolClass'),
         ], 201);
+    }
+
+
+    /**
+     * Get the full report card for a student by term and year.
+     */
+    public function getReportCard(Student $student, Request $request)
+    {
+        $validated = $request->validate([
+            'term' => 'required|string|in:1er trimestre,2e trimestre,3e trimestre',
+            'year' => 'required|integer|min:2000|max:2100',
+        ]);
+
+        // Vérifier les permissions
+        if ($this->currentUser->role === 'student') {
+            if (! $this->currentUser->student || $this->currentUser->student->id !== $student->id) {
+                abort(403, 'Access denied');
+            }
+        } elseif (! in_array($this->currentUser->role, ['director', 'teacher'])) {
+            abort(403, 'Access denied');
+        }
+
+        $reportCards = ReportCard::with('subject')
+            ->where('student_id', $student->id)
+            ->where('term', $validated['term'])
+            ->where('academic_year', $validated['year'])
+            ->get();
+
+        if ($reportCards->isEmpty()) {
+            return response()->json([
+                'message' => 'No report card found for this term and year'
+            ], 404);
+        }
+
+        $total = $reportCards->sum('score');
+        $average = round($total / $reportCards->count(), 2);
+
+        $subjects = $reportCards->map(function ($rc) {
+            return [
+                'subject_id' => $rc->subject_id,
+                'subject_name' => $rc->subject?->name ?? 'Unknown',
+                'score' => (float) $rc->score,
+                'comment' => $rc->comment ?? null,
+            ];
+        });
+
+        return response()->json([
+            'student' => [
+                'id' => $student->id,
+                'name' => $student->user?->name ?? 'N/A',
+                'matricule' => $student->matricule,
+            ],
+            'class' => $student->schoolClass?->name,
+            'term' => $validated['term'],
+            'academic_year' => $validated['year'],
+            'subjects' => $subjects,
+            'total_score' => (float) $total,
+            'average_score' => $average,
+        ]);
     }
 }

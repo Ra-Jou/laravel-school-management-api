@@ -4,6 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;          // ← Ajouté
+use App\Models\SchoolClass;   // ← Ajouté (optionnel mais recommandé)
+use App\Models\Fee;           // ← Ajouté (optionnel)
+use App\Models\ReportCard;    // ← Ajouté (optionnel)
 
 class Student extends Model
 {
@@ -18,7 +22,6 @@ class Student extends Model
         'class_id'
     ];
 
-    // app/Models/Student.php
     public function user()
     {
         return $this->belongsTo(User::class);
